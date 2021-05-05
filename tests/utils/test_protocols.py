@@ -1,8 +1,10 @@
 #!/usr/bin/env runaiida
 # -*- coding: utf-8 -*-
 import os
+from aiida_pseudo.groups.family.pseudo import PseudoPotentialFamily
 from aiida_siesta.utils.protocols_system.protocols import ProtocolManager
-from aiida_siesta.groups.pseudos import PsmlFamily
+#from aiida_siesta.groups.pseudos import PsmlFamily
+
 
 def test_registries(aiida_profile):
     """
@@ -14,7 +16,8 @@ def test_registries(aiida_profile):
     #Here I fake the pseudofamilies
     #PsmlFamily.objects.get_or_create("nc-sr-04_pbe_standard-psf")
     #PsmlFamily.objects.get_or_create("nc-sr-04_pbe_stringent-psf")
-    PsmlFamily.objects.get_or_create("nc-sr-04_pbe_standard_psml")
+    #PsmlFamily.objects.get_or_create("nc-sr-04_pbe_standard_psml")
+    PseudoPotentialFamily.objects.get_or_create("PseudoDojo/0.4/PBE/SR/standard/psml")
 
     basepath = os.path.dirname(os.path.abspath(__file__))
     filepath = os.path.join(basepath, 'fixtures/protocols/registries/custom_prot.yaml')
@@ -42,9 +45,10 @@ def test_methods(aiida_profile):
     """
 
     #Here I fake the pseudofamilies
-    PsmlFamily.objects.get_or_create("nc-sr-04_pbe_standard_psml")
+    #PsmlFamily.objects.get_or_create("nc-sr-04_pbe_standard_psml")
     #PsmlFamily.objects.get_or_create("nc-sr-04_pbe_standard-psf")
     #PsmlFamily.objects.get_or_create("nc-sr-04_pbe_stringent-psf")
+    PseudoPotentialFamily.objects.get_or_create("PseudoDojo/0.4/PBE/SR/standard/psml")
 
     pmanager=ProtocolManager()
         

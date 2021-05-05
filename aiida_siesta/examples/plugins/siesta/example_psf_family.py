@@ -5,13 +5,11 @@ import sys
 from aiida.engine import submit
 from aiida.orm import load_code
 from aiida_siesta.calculations.siesta import SiestaCalculation
-from aiida_siesta.data.psf import get_pseudos_from_structure
 from aiida.plugins import DataFactory
 
 #----------------- Example of the use of a pseudopotential family
 # Read 00_README to learn how to set up a family
 
-PsfData = DataFactory('siesta.psf')
 Dict = DataFactory('dict')
 KpointsData = DataFactory('array.kpoints')
 StructureData = DataFactory('structure')
@@ -140,8 +138,8 @@ basis = Dict(dict=basis_dict)
 #
 # FIXME: The family name is hardwired
 #
-pseudos_dict = get_pseudos_from_structure(s, 'sample_psf_family')
-print(pseudos_dict)
+family = Group.get(label='psf_family')
+pseudos_dict = family.get_pseudos(structure=s)
 #-----------------------------------------------------------------------
 
 #

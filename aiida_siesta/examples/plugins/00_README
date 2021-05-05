@@ -13,3 +13,5 @@ Therefore the line:
 should almost always be able to run the example without errors, unless your "computer" requires
 to pass the name of the account or the queue where to run the calculation. In that case,
 this information must be provoded inside the script, in the "resources" dictionary.
+
+Read ../00_README for info about pseudo families and luapath.

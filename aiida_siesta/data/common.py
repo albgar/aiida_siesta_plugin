@@ -1,6 +1,16 @@
+import warnings
 from aiida.orm import Group
 from aiida_siesta.data.psf import PsfData
 from aiida_siesta.data.psml import PsmlData
+from aiida_siesta.utils.warn import AiidaSiestaDeprecationWarning
+
+message = (  #pylint: disable=invalid-name
+    'This module has been deprecated and will be removed in `v2.0.0`. Function `get_pseudos_from_structure` ' +
+    'is no longer needed. Its functionality is substitued by `fam.get_pseudos(structure=structure)` ' +
+    'where `fam` is an instance of the families classes in `aiida_pseudo.groups.family`.'
+)
+
+warnings.warn(message, AiidaSiestaDeprecationWarning)
 
 
 def get_pseudos_from_structure(structure, family_name):

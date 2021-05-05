@@ -71,9 +71,9 @@ builder = inp_gen.get_filled_builder(structure, calc_engines, protocol)
 
 #The inputs generator (inp_gen) has also some
 #methods to guide the construction, like:
-print(inp_gen.get_relaxation_types())
-print(inp_gen.get_protocol_names())
-print(inp_gen.how_to_pass_computation_options())
+#print(inp_gen.get_relaxation_types())
+#print(inp_gen.get_protocol_names())
+#print(inp_gen.how_to_pass_computation_options())
 
 # As we get the builder and not stored nodes, before submission any user has complete
 # freedom to change something before submission.

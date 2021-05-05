@@ -1,13 +1,11 @@
 Some of the examples use explicitly pseudopotential files contained in the
-data/sample-psf-family folder.
+../../fixtures/sample_psf folder.
 
 Other examples set up automatically the pseudopotential dictionary by searching for
 the appropriate PsfData nodes in a "pseudopotential family", named 'sample_psf_family'.
 Before they can be run, the family's .psf files have to be uploaded to the database by executing:
 
-  verdi data psf uploadfamily /path/to/data/sample-psf-family sample_psf_family "Sample PSF family"
+  aiida-pseudo install family /path-to-examples/fixtures/sample_psf psf_family
 
 The lua examples require the set of the `lua_elements_path` variable inside
 the script.
-                                    
-

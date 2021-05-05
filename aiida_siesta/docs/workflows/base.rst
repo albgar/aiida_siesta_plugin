@@ -46,16 +46,15 @@ For more up to date info on compatibility, please check the
 Inputs
 ------
 
-Most inputs of the WorkChain are mirroring the siesta plugin inputs. Therefore, more
+All the siesta plugin inputs are also inputs of the **SiestaBaseWorkChain**. Therefore,
 detailed information on them can be found :ref:`here <siesta-plugin-inputs>`.
-The only difference is regarding the way the computational resources are passed.
-The siesta plugin make use of ``metadada.options`` for this task, here, instead, we have
-a dedicated input node. This node is the first point in the following list, describing
-all the inputs of the WorkChain.
+The only difference is regarding the way the computational resources are passed. 
+The siesta plugin makes use of ``metadada.options`` for this task, here, instead, we have
+a dedicated input node.
 
 * **options**, class :py:class:`Dict <aiida.orm.Dict>`, *Mandatory*
 
-  Execution options. In this dictionary the computational resources and
+  Execution options for the siesta calculation. In this dictionary the computational resources and
   scheduler specifications (queue, account, etc ..) must be specified.
   An example is::
         options = Dict(
@@ -71,125 +70,16 @@ all the inputs of the WorkChain.
   The `resources` and `max_wallclock_seconds` are required by AiiDA, the rest of the options
   depend on the scheduler of the machine one is submitting to.
 
-.. |br| raw:: html
 
-    <br />
-
-* **code**,  class :py:class:`Code  <aiida.orm.Code>`, *Mandatory*
-
-  A database object representing a Siesta executable. See the plugin documentation for more details.
-
-.. |br| raw:: html
-
-    <br />
-
-* **structure**, class :py:class:`StructureData <aiida.orm.StructureData>`, *Mandatory*
-
-  A structure. See the plugin documentation for more details.
-
-.. |br| raw:: html
-
-    <br />
-
-* **parameters**, class :py:class:`Dict <aiida.orm.Dict>`,  *Mandatory*
-
-  A dictionary with scalar fdf variables and blocks, which are the
-  basic elements of any Siesta input file. A given Siesta fdf file
-  can be cast almost directly into this dictionary form, except that
-  some items (e.g. for structure data) are blocked. Any units are
-  specified for now as part of the value string. Blocks are entered
-  by using an appropriate key and Python's multiline string
-  constructor. For example::
-  
-      {
-        "mesh-cutoff": "200 Ry",
-        "dm-tolerance": "0.0001",
-        "%block example-block":
-  	  """
-  	  first line
-  	  second line             
-  	  %endblock example-block""",
-        ...
-      }
-  
-  Note that Siesta fdf keywords allow '.', '-', or nothing as
-  internal separators. AiiDA does not allow the use of '.' in
-  nodes to be inserted in the database, so it should not be used
-  in the input script (or removed before assigning the dictionary to
-  the Dict instance). For legibility, a single dash ('-') is suggested, as in the
-  examples above. See the plugin documentation for more details on the blocked
-  items.
-
-.. |br| raw:: html
-
-    <br />
-
-* **pseudos**, input namespace of class :py:class:`PsfData <aiida_siesta.data.psf.PsfData>`
-  OR class :py:class:`PsmlData <aiida_siesta.data.psml.PsmlData>`, *Optional*
-
-  A dictionary of `PsfData  <aiida_siesta.data.psf.PsfData>` or
-  `PsmlData  <aiida_siesta.data.psml.PsmlData>` objects representing the pseudopotentials for
-  the calculation. See the plugin documentation for more details.
-  In contrast to the case of the siesta plugin, the **pseudos** input
-  is not mandatory. The **SiestaBaseWorkChain** supports, in fact, the direct use of
-  **pseudo_family** (see below). If **pseudos** is not in input, a **pseudo_family** 
-  specification must be used.
-
-.. |br| raw:: html
-
-    <br />
+The **SiestaBaseWorkChain** also has some additional inputs that allow
+to control additional features.
 
 * **pseudo_family**, class :py:class:`Str <aiida.orm.Str>`, *Optional*
 
   String representing the name of a pseudopotential family stored in the database.
-  Pseudofamilies can be uploaded in the database via the ``verdi data psf uploadfamily``
-  or ``verdi data psml uploadfamily`` CLI interface.
-
-.. |br| raw:: html
-
-    <br />
-
-* **basis**, class :py:class:`Dict  <aiida.orm.Dict>`, *Optional*
-  
-  A dictionary specifically intended for basis set information. It
-  follows the same structure as the **parameters** element, including
-  the allowed use of fdf-block items. This raw interface allows a
-  direct translation of the myriad basis-set options supported by the
-  Siesta program. If not specified, a calculation with only the gamma 
-  point is performed. See the plugin documentation for more details.
-
-.. |br| raw:: html
-
-    <br />
-
-* **kpoints**, class :py:class:`KpointsData <aiida.orm.KpointsData>`, *Optional*
-  
-  Reciprocal space points for the full sampling of the BZ during the
-  self-consistent-field iteration. It must be given in mesh form. There is no support
-  yet for Siesta's kgrid-cutoff keyword. See the plugin documentation for more details.
-  If this node is not present, only the Gamma point is used for sampling.
-
-.. |br| raw:: html
-
-    <br />
-
-* **bandskpoints**, class :py:class:`KpointsData  <aiida.orm.KpointsData>`, *Optional*
-  
-  Reciprocal space points for the calculation of bands.  They can be
-  given as a simple list of k-points, as segments with start and end
-  point and number of points, or as a complete automatic path, using the
-  functionality of modern versions of the class. See the plugin documentation 
-  for more details.
-  If this node is not present, no band structure is computed.
-
-.. |br| raw:: html
-
-    <br />
-
-* **settings**, class :py:class:`Dict <aiida.orm.Dict>`, *Optional*
-      
-  An optional dictionary that activates non-default operations. For a list of possible
-  values to pass, see the section on :ref:`advanced features <siesta-advanced-features>`.
+  Pseudofamilies can be installed in the database via the ``aiida-pseudo install family``
+  CLI interface. As already specified in the description of the **pseudos** input
+  :ref:`here <siesta-plugin-inputs>`.
 
 .. |br| raw:: html
 
@@ -216,10 +106,6 @@ all the inputs of the WorkChain.
 .. |br| raw:: html
 
     <br />
-
-* **parent_calc_folder**, class  :py:class:`RemoteData <aiida.orm.RemoteData>` , *Optional*
-
-  Optional port used to activate the restart features, as explained in the plugin documentation.
 
 
 Relaxation and bands
@@ -259,52 +145,7 @@ Outputs
 -------
 
 The outputs of the **SiestaBaseWorkChain** mirror exactly the one of the siesta plugin.
-Therefore all the information can be obtained in the corresponding section.
-We list here the outputs.
-
-* **output_parameters** :py:class:`Dict <aiida.orm.Dict>` 
-
-  A dictionary with metadata and scalar result values from the last
-  calculation executed.
-
-.. |br| raw:: html
-
-    <br />
-
-* **output_structure** :py:class:`StructureData <aiida.orm.StructureData>`
-  
-  Present only if the workchain is modifying the geometry of the system.
-
-.. |br| raw:: html
-
-    <br />
-
-* **bands**, :py:class:`BandsData <aiida.orm.BandsData>`
-  
-  Present only if a band calculation is requested (signaled by the
-  presence of a **bandskpoints** input node of class KpointsData)
-  Contains an array with the list of electronic energies for every
-  kpoint. For spin-polarized calculations, there is an extra dimension
-  for spin.
-
-.. |br| raw:: html
-
-    <br />
-
-* **forces_and_stress** :py:class:`ArrayData <aiida.orm.ArrayData>`
-
-  Contains the final forces (`eV/Angstrom`) and stresses (`GPa`) in array form.
-
-.. |br| raw:: html
-
-    <br />
-
-* **remote_folder**, :py:class:`RemoteData <aiida.orm.RemoteData>`
-
-  The working remote folder for the last calculation executed. As the **SiestaBaseWorkChain**
-  automatically restarts the calculation in case of common failures, the very last
-  siesta calculation is considered the interesting one for a further manual restart.
-  Therefore its folder is returned in this node.
+Therefore all the information can be obtained in the :ref:`corresponding section <outputs-siesta-calc>`.
 
 
 .. _basewc-error:

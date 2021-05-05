@@ -12,4 +12,4 @@ standard_my:
   basis:
     pao-energy-shift: '100 meV'
     pao-basis-size: 'DZ'
-  pseudo_family: "nc-sr-04_pbe_standard-psf"
+  pseudo_family: "PseudoDojo/0.4/PBE/SR/standard/psml"

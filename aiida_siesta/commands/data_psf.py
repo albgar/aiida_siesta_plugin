@@ -25,6 +25,9 @@ def psf():
     help='Interrupt pseudos import if a pseudo was already present in the AiiDA database'
 )
 @decorators.with_dbenv()
+@decorators.deprecated_command(
+    "This command has been deprecated and will be removed in v2.0. Please use `aiida-pseudo install` instead."
+)
 def psf_uploadfamily(folder, group_label, group_description, stop_if_existing):
     """
     Create a new PSF family from a folder of PSF files.
@@ -49,6 +52,13 @@ def psf_uploadfamily(folder, group_label, group_description, stop_if_existing):
 )
 @options.WITH_ELEMENTS()
 @decorators.with_dbenv()
+@decorators.deprecated_command(
+    "This command is deprecated and will be removed in aiida_siesta v2.0. Its substitute command is `aiida-pseudo "
+    "list`. Since the pseudo management is now based on a new system, the families listed here will not appear "
+    "running the new command. It is suggested to export the families into a folder (`verdi data psf exportfamily "
+    "folder_name family_label`), delete the group corresponding to the family (`verdi group delete family_label`), "
+    "and install the family again (`aiida-pseudo install family folder_name family_label -P pseudo.psf`)."
+)
 def psf_listfamilies(elements, with_description):
     """
     List all PSF families that exist in the database.
@@ -87,6 +97,7 @@ def psf_listfamilies(elements, with_description):
 @psf.command('exportfamily')
 @click.argument('folder', type=click.Path(exists=True, file_okay=False, resolve_path=True))
 @arguments.GROUP()
+@decorators.deprecated_command("This command has been deprecated and will be removed in v2.0.")
 @decorators.with_dbenv()
 def psf_exportfamily(folder, group):
     """
@@ -107,6 +118,7 @@ def psf_exportfamily(folder, group):
 
 @psf.command('import')
 @click.argument('filename', type=click.Path(exists=True, dir_okay=False, resolve_path=True))
+@decorators.deprecated_command("This command has been deprecated and will be removed in v2.0.")
 @decorators.with_dbenv()
 def psf_import(filename):
     """

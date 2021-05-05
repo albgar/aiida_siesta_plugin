@@ -63,54 +63,72 @@ class ProtocolManager:
 
         self._default_protocol = 'standard_psml'
 
-    def _protocols_checks(self):
+    def _protocols_checks(self):  # noqa: MC0001  - is mccabe too complex funct -
         """
         Here implemented all the checks on the correct structure of each protocol. It also checks
         that, for each protocol, the correct pseudo family already loaded in the database.
         """
 
         def raise_invalid(message):
-            raise RuntimeError('invalid protocol registry `{}`: '.format(self.__class__.__name__) + message)
+            raise RuntimeError(f'invalid protocol registry `{self.__class__.__name__}`: ' + message)
 
         if not isinstance(self._protocols, dict):
             raise_invalid('protocols not collected in a dictionary')
 
         for k, v in self._protocols.items():
             if not isinstance(self._protocols[k], dict):
-                raise_invalid('protocol `{}` is not a dictionary'.format(k))
+                raise_invalid(f'protocol `{k}` is not a dictionary')
 
             if 'description' not in v:
-                raise_invalid('protocol `{}` does not define the mandatory key `description`'.format(k))
+                raise_invalid(f'protocol `{k}` does not define the mandatory key `description`')
 
             if 'parameters' not in v:
-                raise_invalid('protocol `{}` does not define the mandatory key `parameters`'.format(k))
+                raise_invalid(f'protocol `{k}` does not define the mandatory key `parameters`')
             if "mesh-cutoff" in v["parameters"]:
                 try:
                     float(v["parameters"]["mesh-cutoff"].split()[0])
                     str(v["parameters"]["mesh-cutoff"].split()[1])
                 except (ValueError, IndexError):
                     raise_invalid(
-                        'Wrong format of `mesh-cutoff` in `parameters` of protocol '
-                        '`{}`. Value and units are required'.format(k)
+                        f'Wrong format of `mesh-cutoff` in `parameters` of protocol `{k}`. Value and units required.'
                     )
 
             if 'basis' not in v:
-                raise_invalid('protocol `{}` does not define the mandatory key `basis`'.format(k))
+                raise_invalid(f'protocol `{k}` does not define the mandatory key `basis`')
 
             if 'pseudo_family' not in v:
-                raise_invalid('protocol `{}` does not define the mandatory key `pseudo_family`'.format(k))
+                raise_invalid(f'protocol `{k}` does not define the mandatory key `pseudo_family`')
             else:
                 famname = self._protocols[k]["pseudo_family"]
+                messagg = (
+                    f'protocol `{k}` requires `pseudo_family` with name {famname} ' +
+                    'but no family with this name is loaded in the database'
+                )
                 try:
                     Group.get(label=famname)
                 except exceptions.NotExistent:
-                    raise_invalid(
-                        'protocol `{}` requires `pseudo_family` with name {} '
-                        'but no family with this name is loaded in the database'.format(k, famname)
-                    )
+                    if k == "standard_psml":
+                        try:
+                            Group.get(label="nc-sr-04_pbe_standard_psml")
+                            from aiida_siesta.utils.warn import AiidaSiestaDeprecationWarning
+                            import warnings
+                            mesg = (
+                                f'protocol `{k}` now requires `pseudo_family` with name `{famname}`. This is not ' +
+                                'present in the database, but family `nc-sr-04_pbe_standard_psml` is found instead. ' +
+                                f'This is an old name for the family of {k}. It is accepted now but deprecated ' +
+                                'after v2.0. To create the family with updated name, run the command ' +
+                                '`aiida-pseudo install pseudo-dojo -v 0.4 -x PBE -r SR -p standard -f psml`. ' +
+                                'This will also remove other deprecation messages.'
+                            )
+                            warnings.warn(mesg, AiidaSiestaDeprecationWarning)
+                            self._protocols[k]["pseudo_family"] = "nc-sr-04_pbe_standard_psml"
+                        except exceptions.NotExistent:
+                            raise_invalid(messagg)
+                    else:
+                        raise_invalid(messagg)
 
         if self._default_protocol not in self._protocols:
-            raise_invalid('default protocol `{}` is not a defined protocol'.format(self._default_protocol))
+            raise_invalid(f'default protocol `{self._default_protocol}` is not a defined protocol')
 
     #Some methods to return informations about the protocols
     #available and the _calc_types, describing the use of resources
@@ -316,8 +334,14 @@ class ProtocolManager:
 
     def _get_pseudos(self, key, structure):
 
-        from aiida_siesta.data.common import get_pseudos_from_structure
-
         family = self._protocols[key]["pseudo_family"]
-        pseudos = get_pseudos_from_structure(structure, family)
+        group = Group.get(label=family)
+
+        # To be removed in v2.0
+        if "data" in group.type_string:
+            from aiida_siesta.data.common import get_pseudos_from_structure
+            pseudos = get_pseudos_from_structure(structure, family)
+            return pseudos
+
+        pseudos = group.get_pseudos(structure=structure)
         return pseudos

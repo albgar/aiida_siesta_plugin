@@ -5,9 +5,11 @@ from aiida import orm
 from aiida.common import LinkType
 from aiida.common import AttributeDict
 from aiida.engine import ProcessHandlerReport
+from aiida_pseudo.groups.family.pseudo import PseudoPotentialFamily
 from aiida_siesta.calculations.siesta import SiestaCalculation
 from aiida_siesta.workflows.base import SiestaBaseWorkChain
-from aiida_siesta.groups.pseudos import PsmlFamily
+#from aiida_siesta.groups.pseudos import PsmlFamily
+
 
 @pytest.fixture
 def generate_workchain_base(generate_psml_data, fixture_code, fixture_localhost, generate_workchain, 
@@ -60,7 +62,7 @@ def generate_workchain_base(generate_psml_data, fixture_code, fixture_localhost,
             elif remove_inp == "one_pseudo":
                 # I override the pseudo fam with an empty one
                 if add_pseudo_fam:
-                    PsmlFamily.objects.get_or_create("pp")
+                    PseudoPotentialFamily.objects.get_or_create("pp")
                     inputs['pseudo_family'] = orm.Str("pp")
                     inputs.pop("pseudos")
                 else:

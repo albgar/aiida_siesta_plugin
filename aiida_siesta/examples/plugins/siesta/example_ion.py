@@ -93,7 +93,7 @@ kpoints.set_kpoints_mesh([4, 4, 4])
 ions_dict = {}
 raw_ions = [("Si.ion.xml", ['Si'])]
 for fname, kinds in raw_ions:
-    absname = op.realpath(op.join(op.dirname(__file__), "data", fname))
+    absname = op.realpath(op.join(op.dirname(__file__), "../../fixtures", fname))
     ion, created = IonData.get_or_create(absname, use_first=True)
     if created:
         print("\nCreated the ion for {}".format(kinds))

@@ -4,9 +4,11 @@ from aiida.common import CalcInfo, CodeInfo
 from aiida.common.constants import elements
 from aiida.engine import CalcJob
 from aiida.orm import Dict, StructureData, BandsData, ArrayData
+from aiida_pseudo.data.pseudo.psf import PsfData
+from aiida_pseudo.data.pseudo.psml import PsmlData
 from aiida_siesta.utils.tkdict import FDFDict
-from aiida_siesta.data.psf import PsfData
-from aiida_siesta.data.psml import PsmlData
+from aiida_siesta.data.psf import PsfData as DeprecatedPsfData
+from aiida_siesta.data.psml import PsmlData as DeprecatedPsmlData
 from aiida_siesta.data.ion import IonData
 
 # See the LICENSE.txt and AUTHORS.txt files.
@@ -23,7 +25,7 @@ def internal_structure(structure, basis_dict=None):
     Add the floating sites to the structure if necessary.
     Params:
     * structure. StructureData passed in input.
-    * basis_dict. Python dictionary with the basis info passed in innput (no Dict!!)
+    * basis_dict. Python dictionary with the basis info passed in input (no Dict!!)
     Return three possible scenarios:
     1) a structure with added floating sites if they are specified in the basis dict
     2) a clone of the original structure if no floating sites are specified in the basis dict
@@ -43,6 +45,25 @@ def internal_structure(structure, basis_dict=None):
                 tweaked.append_atom(position=item["position"], symbols=item["symbols"], name=item["name"])
 
     return tweaked
+
+
+def validate_pseudos(value, _):
+    """
+    Only used to throw deprecation warnings. Can be deleted in v2.0.0
+    """
+    if value:
+        for key, val in value.items():
+            if isinstance(val, (DeprecatedPsfData, DeprecatedPsmlData)):
+                import warnings
+                from aiida_siesta.utils.warn import AiidaSiestaDeprecationWarning
+                message = (
+                    f'You are using as pseudos for {key} a `PsfData/PsmlData` class from the aiida_siesta package. ' +
+                    'These classes has been deprecated and will be removed in `v2.0.0`. ' +
+                    'Use the same classes imported from `aiida_pseudo.data.pseudo`.'
+                )
+                warnings.warn(message, AiidaSiestaDeprecationWarning)
+
+        return None
 
 
 def validate_basis(value, _):
@@ -250,7 +271,12 @@ class SiestaCalculation(CalcJob):
         spec.input('parameters', valid_type=orm.Dict, help='Input parameters', validator=validate_parameters)
         spec.input('parent_calc_folder', valid_type=orm.RemoteData, required=False, help='Parent folder')
         spec.input_namespace(
-            'pseudos', valid_type=(PsfData, PsmlData), help='Input pseudo potentials', dynamic=True, required=False
+            'pseudos',
+            valid_type=(PsfData, PsmlData, DeprecatedPsfData, DeprecatedPsmlData),
+            help='Input pseudo potentials',
+            dynamic=True,
+            required=False,
+            validator=validate_pseudos
         )
         spec.input_namespace('ions', valid_type=IonData, help='Input ion file', dynamic=True, required=False)
 
@@ -461,9 +487,9 @@ class SiestaCalculation(CalcJob):
                 file_name = kind.name + ".ion"
                 with folder.open(file_name, 'w', encoding='utf8') as handle:
                     handle.write(psp_or_ion.get_content_ascii_format())
-            if isinstance(psp_or_ion, PsfData):
+            if isinstance(psp_or_ion, (PsfData, DeprecatedPsfData)):
                 local_copy_list.append((psp_or_ion.uuid, psp_or_ion.filename, kind.name + ".psf"))
-            if isinstance(psp_or_ion, PsmlData):
+            if isinstance(psp_or_ion, (PsmlData, DeprecatedPsmlData)):
                 local_copy_list.append((psp_or_ion.uuid, psp_or_ion.filename, kind.name + ".psml"))
         atomic_species_card_list = (["%block chemicalspecieslabel\n"] + list(atomic_species_card_list))
         atomic_species_card = "".join(atomic_species_card_list)

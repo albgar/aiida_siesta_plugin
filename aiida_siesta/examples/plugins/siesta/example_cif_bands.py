@@ -1,13 +1,12 @@
 #!/usr/bin/env runaiida
-
+import io
 import sys
 import pymatgen as mg
 import ase.io
 
 from aiida.engine import submit
-from aiida.orm import load_code
+from aiida.orm import load_code, Group
 from aiida_siesta.calculations.siesta import SiestaCalculation
-from aiida_siesta.data.psf import get_pseudos_from_structure
 from aiida.plugins import DataFactory
 from aiida.tools import get_explicit_kpoints_path
 
@@ -18,7 +17,7 @@ from aiida.tools import get_explicit_kpoints_path
 # The pseudopotential is taken from a family, please refer to 00_README
 # and example_psf_family.py for better understanding
 
-PsfData = DataFactory('siesta.psf')
+PsfData = DataFactory('pseudo.psf')
 Dict = DataFactory('dict')
 KpointsData = DataFactory('array.kpoints')
 StructureData = DataFactory('structure')
@@ -62,7 +61,7 @@ options = {
 # For importing the .cif we use ase. Then
 # passing through SeeK-path  to get the standardized cell.
 # Necessary for the automatic choice of the bands path.
-structure =ase.io.read("data/O2_ICSD_173933.cif")
+structure = ase.io.read("../../fixtures/O2_ICSD_173933.cif")
 s = StructureData(ase=structure)
 
 seekpath_parameters = {'reference_distance': 0.02, 'symprec': 0.0001}
@@ -100,10 +99,8 @@ basis = Dict(dict=basis_dict)
 
 #--------------------- Pseudopotentials ---------------------------------
 #
-# FIXME: The family name is hardwired
-#
-pseudos_dict = get_pseudos_from_structure(s, 'sample_psf_family')
-print(pseudos_dict)
+family = Group.get(label='psf_family')
+pseudos_dict = family.get_pseudos(structure=s)
 #-----------------------------------------------------------------------
 
 # K-points for scf cycle -------------------------------------------

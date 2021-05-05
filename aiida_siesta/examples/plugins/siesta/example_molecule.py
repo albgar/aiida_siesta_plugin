@@ -1,6 +1,7 @@
 #!/usr/bin/env runaiida
 import sys
-import os
+import os.path as op
+import io
 
 from aiida.engine import submit
 from aiida.orm import load_code
@@ -9,7 +10,7 @@ from aiida.plugins import DataFactory
 
 #  Siesta calculation on benzene molecule
 
-PsfData = DataFactory('siesta.psf')
+PsfData = DataFactory('pseudo.psf')
 Dict = DataFactory('dict')
 KpointsData = DataFactory('array.kpoints')
 StructureData = DataFactory('structure')
@@ -147,16 +148,14 @@ basis = Dict(dict=basis_dict)
 #
 pseudos_dict = {}
 raw_pseudos = [("C.psf", ['C', 'Cred']), ("H.psf", ['H'])]
-
-for fname, kinds, in raw_pseudos:
-    absname = os.path.realpath(
-        os.path.join(os.path.dirname(__file__), "data/sample-psf-family",
-                     fname))
-    pseudo, created = PsfData.get_or_create(absname, use_first=True)
-    if created:
-        print("Created the pseudo for {}".format(kinds))
+for fname, kinds in raw_pseudos:
+    absname = op.realpath(op.join(op.dirname(__file__), "../../fixtures/sample_psf", fname))
+    with io.open(absname, 'rb') as handle:
+        pseudo = PsfData.get_or_create(handle)
+    if not pseudo.is_stored:
+        print("\nCreated the pseudo for {}".format(kinds))
     else:
-        print("Using the pseudo for {} from DB: {}".format(kinds, pseudo.pk))
+        print("\nUsing the pseudo for {} from DB: {}".format(kinds, pseudo.pk))
     for j in kinds:
         pseudos_dict[j]=pseudo
 

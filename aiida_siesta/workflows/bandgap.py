@@ -1,8 +1,8 @@
 from aiida import orm
+from aiida.common.exceptions import NotExistent
 from aiida.engine import WorkChain, calcfunction, ToContext
 from aiida.common import AttributeDict
 from aiida.tools import get_explicit_kpoints_path
-from aiida_siesta.data.common import get_pseudos_from_structure
 from aiida_siesta.calculations.siesta import internal_structure
 from aiida_siesta.workflows.base import SiestaBaseWorkChain
 from aiida_siesta.utils.tkdict import FDFDict
@@ -67,17 +67,26 @@ def validate_inputs(value, _):
             return "You cannot specify both `pseudos` and `pseudo_family`"
 
     if 'pseudo_family' in value:
-        from aiida.common.exceptions import NotExistent
-        try:
-            get_pseudos_from_structure(structure, value['pseudo_family'].value)
-        except NotExistent:
-            return "The pseudo family do not incude all the required pseudos"
+        group = orm.Group.get(label=value['pseudo_family'].value)
+        # To be removed in v2.0
+        if "data" in group.type_string:
+            from aiida_siesta.data.common import get_pseudos_from_structure
+            try:
+                get_pseudos_from_structure(structure, value['pseudo_family'].value)
+            except NotExistent:
+                return "The pseudo family does not incude all the required pseudos"
+        else:
+            try:
+                group.get_pseudos(structure=structure)
+            except ValueError:
+                return "The pseudo family does not incude all the required pseudos"
     else:
         if set(kinds) != set(value[quantity].keys()):
+            ps_io = ', '.join(list(value[quantity].keys()))
+            kin = ', '.join(list(kinds))
             string_out = (
-                'mismatch between the defined pseudos/ions and the list of kinds of the structure\n' +
-                'pseudos/ions: {} \n'.format(', '.join(list(value[quantity].keys()))) +
-                'kinds(including ghosts): {}'.format(', '.join(list(kinds)))
+                'mismatch between defined pseudos/ions and the list of kinds of the structure\n' +
+                f' pseudos/ions: {ps_io} \n kinds(including ghosts): {kin}'
             )
             return string_out
 

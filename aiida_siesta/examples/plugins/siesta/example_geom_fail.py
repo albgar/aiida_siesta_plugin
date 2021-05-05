@@ -2,9 +2,8 @@
 import sys
 
 from aiida.engine import submit
-from aiida.orm import load_code
+from aiida.orm import load_code, Group
 from aiida_siesta.calculations.siesta import SiestaCalculation
-from aiida_siesta.data.psf import get_pseudos_from_structure
 from aiida.plugins import DataFactory
 
 #  Siesta calculation on Water molecule -- to fail in geom relaxation
@@ -106,7 +105,8 @@ parameters = Dict(dict=params_dict)
 #
 # FIXME: The family name is hardwired
 #
-pseudos_dict = get_pseudos_from_structure(s, 'sample_psf_family')
+family = Group.get(label='psf_family')
+pseudos_dict = family.get_pseudos(structure=s)
 #-----------------------------------------------------------------------
 
 #

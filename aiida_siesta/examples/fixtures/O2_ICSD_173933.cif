@@ -1,0 +1,25 @@
+data_O2   
+_pd_phase_name O2  
+_cell_length_a  3.5990002970
+_cell_length_b  3.5990002970
+_cell_length_c  4.4474929310
+_cell_angle_alpha  64.8918477306
+_cell_angle_beta  64.8918477306
+_cell_angle_gamma  63.1246390820
+_symmetry_space_group_name_H-M  'P1'
+_symmetry_Int_Tables_Number  1
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz_
+  1  x,y,z
+loop_
+ _atom_site_label
+ _atom_site_occupancy
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_thermal_displace_type
+ _atom_site_B_iso_or_equiv
+ _atom_site_type_symbol
+O1 1.0 0.0624744148 0.0624744148 0.8403060084  Biso 1.0 O
+O2 1.0 0.9375255852 0.9375255852 0.1596939916  Biso 1.0 O

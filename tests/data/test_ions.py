@@ -53,7 +53,7 @@ def test_get_or_create(generate_ion_data):
 
     from aiida_siesta.data.ion import IonData
     import os
-    filename = os.path.join('tests', 'ions', 'SiDiff.ion.xml')
+    filename = os.path.join('tests', 'fixtures', 'ions', 'SiDiff.ion.xml')
     filepath = os.path.abspath(filename)
 
     ion, created = IonData.get_or_create(filepath)
@@ -75,7 +75,7 @@ def test_get_or_create(generate_ion_data):
     ion, created = IonData.get_or_create(filepath, use_first = True)
 
     #Finally test store_ion True
-    filename = os.path.join('tests', 'ions', 'SiTris.ion.xml')
+    filename = os.path.join('tests', 'fixtures', 'ions', 'SiTris.ion.xml')
     filepath = os.path.abspath(filename)
     ion, created = IonData.get_or_create(filepath, store_ion=True)
     assert ion.is_stored == True

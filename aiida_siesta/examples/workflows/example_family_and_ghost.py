@@ -8,7 +8,6 @@ import sys
 from aiida.engine import submit
 from aiida.orm import load_code
 from aiida.orm import (Dict, StructureData, KpointsData, Str)
-from aiida_siesta.data.psf import PsfData
 from aiida_siesta.workflows.base import SiestaBaseWorkChain
 
 # This example shows the use of the SiestaBaseWorkChain
@@ -103,7 +102,7 @@ inputs = {
     'code': code,
     'basis': basis,
     'kpoints': kpoints,
-    'pseudo_family': Str("nc-sr-04_pbe_standard_psml"),
+    'pseudo_family': Str("PseudoDojo/0.4/PBE/SR/standard/psml"),
     'options': options
 }
 

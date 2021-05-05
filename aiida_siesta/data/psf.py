@@ -1,10 +1,13 @@
 """
 This module manages the PSF pseudopotentials in the local repository.
 """
+#pylint: disable=redefined-outer-name,too-many-statements
 
+import warnings
 import io
 from aiida.common.files import md5_file
 from aiida.orm.nodes import SinglefileData
+from aiida_siesta.utils.warn import AiidaSiestaDeprecationWarning
 
 
 def get_pseudos_from_structure(structure, family_name):
@@ -19,6 +22,14 @@ def get_pseudos_from_structure(structure, family_name):
        found in the group.
     """
     from aiida.common.exceptions import NotExistent, MultipleObjectsError
+
+    message = (  #pylint: disable=invalid-name
+        'This function has been deprecated and will be removed in `v2.0.0`. ' +
+        '`get_pseudos_from_structure` is substitued by `fam.get_pseudos(structure=structure)` ' +
+        'where `fam` is an instance of the families classes in `aiida_pseudo.groups.family`.'
+    )
+
+    warnings.warn(message, AiidaSiestaDeprecationWarning)
 
     family_pseudos = {}
     family = PsfData.get_psf_group(family_name)
@@ -62,6 +73,14 @@ def upload_psf_family(folder, group_label, group_description, stop_if_existing=T
     from aiida.common.exceptions import UniquenessError
     from aiida.orm.querybuilder import QueryBuilder
     from aiida_siesta.groups.pseudos import PsfFamily
+
+    message = (  #pylint: disable=invalid-name
+        'This function has been deprecated and will be removed in `v2.0.0`. ' +
+        '`upload_psf_family` is substitued by `fam.create_from_folder` ' +
+        'where `fam` is an instance of the families classes in `aiida_pseudo.groups.family`.'
+    )
+
+    warnings.warn(message, AiidaSiestaDeprecationWarning)
 
     if not os.path.isdir(folder):
         raise ValueError("folder must be a directory")
@@ -211,6 +230,16 @@ class PsfData(SinglefileData):
     Function not yet documented.
     """
 
+    def __init__(self, file, filename=None, **kwargs):
+        message = (  #pylint: disable=invalid-name
+            'This module has been deprecated and will be removed in `v2.0.0`. Support on psf pseudos and ' +
+            'corresponding families is moved to the `aiida_pseudo` package. Use the `PsfData` class of ' +
+            'aiida_pseudo.data.pseudo.psf. Instanciating the new class requires a file stream, not the file name.'
+        )
+        warnings.warn(message, AiidaSiestaDeprecationWarning)
+
+        super().__init__(file, filename, **kwargs)
+
     @classmethod
     def get_or_create(cls, filename, use_first=False, store_psf=True):
         """
@@ -228,6 +257,13 @@ class PsfData(SinglefileData):
             from the DB.
         """
         import os
+
+        message = (  #pylint: disable=invalid-name
+            'This method has been deprecated and will be removed in `v2.0.0`. Support on psf pseudos and ' +
+            'corresponding families is moved to the aiida_pseudo package. The `get_or_create` method of ' +
+            'aiida_pseudo.data.pseudo.psml.Psf requires file stream as argument, not the file name.'
+        )
+        warnings.warn(message, AiidaSiestaDeprecationWarning)
 
         if not os.path.abspath(filename):
             raise ValueError("filename must be an absolute path")

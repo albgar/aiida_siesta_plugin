@@ -10,8 +10,6 @@ The "example_protocol" and "example_protocols_stm" showcase
 the use of the protocol system, a system to automatically 
 suggest inputs for the WorkChain. The protocol approach still leaves compleate freedom
 to change the inputs before submission.
-In order to use these examples, a pseudo family named 'nc-sr-04_pbe_standard_psml' must be
-loaded in the database and it should contain the 'nc-sr-04_pbe_standard_psml' pseudo set 
-available from the PseudoDojo web site (http://www.pseudo-dojo.org/).
-
+In order to use these examples, a pseudo family from pseudodojo must be installed:
+  aiida-pseudo install pseudo-dojo -v 0.4 -x PBE -r SR -p standard -f psml 
 The same pseudofamily is needed for running `example_family_and_ghost.py`. 

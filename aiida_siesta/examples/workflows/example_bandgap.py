@@ -3,13 +3,14 @@
 #Not required by AiiDA
 import os.path as op
 import sys
+import io
 
 #AiiDA classes and functions
 from aiida.engine import submit
 from aiida.orm import load_code
 from aiida.orm import (Dict, StructureData, KpointsData)
 from aiida.tools import get_explicit_kpoints_path
-from aiida_siesta.data.psf import PsfData
+from aiida_pseudo.data.pseudo.psf import PsfData
 from aiida_siesta.workflows.bandgap import BandgapWorkChain
 
 try:
@@ -87,16 +88,15 @@ kpoints.set_kpoints_mesh([4, 4, 4])
 pseudos_dict = {}
 raw_pseudos = [("Si.psf", ['Si'])]
 for fname, kinds in raw_pseudos:
-    absname = op.realpath(
-        op.join(op.dirname(__file__),
-                "../plugins/siesta/data/sample-psf-family", fname))
-    pseudo, created = PsfData.get_or_create(absname, use_first=True)
-    if created:
+    absname = op.realpath(op.join(op.dirname(__file__), "../fixtures/sample_psf", fname))
+    with io.open(absname, 'rb') as handle:
+        pseudo = PsfData.get_or_create(handle)
+    if not pseudo.is_stored:
         print("\nCreated the pseudo for {}".format(kinds))
     else:
         print("\nUsing the pseudo for {} from DB: {}".format(kinds, pseudo.pk))
     for j in kinds:
-        pseudos_dict[j] = pseudo
+        pseudos_dict[j]=pseudo
 
 #Resources
 options = Dict(

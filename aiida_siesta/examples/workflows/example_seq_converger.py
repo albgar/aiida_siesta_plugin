@@ -12,12 +12,13 @@ process the inputs for you to perform more complex input modifications. E.g: "kp
 # Not required by AiiDA
 import os.path as op
 import sys
+import io
 
 # AiiDA classes and functions
 from aiida.engine import submit, run
 from aiida.orm import load_code
 from aiida.orm import Float, Dict, StructureData, Str, Int, KpointsData
-from aiida_siesta.data.psf import PsfData
+from aiida_pseudo.data.pseudo.psf import PsfData
 # The workchain that we are going to use to converge things.
 from aiida_siesta.workflows.converge import SiestaSequentialConverger
 
@@ -89,16 +90,15 @@ kpoints.set_kpoints_mesh([14, 14, 14])
 pseudos_dict = {}
 raw_pseudos = [("Si.psf", ['Si'])]
 for fname, kinds in raw_pseudos:
-    absname = op.realpath(
-        op.join(op.dirname(__file__),
-                "../plugins/siesta/data/sample-psf-family", fname))
-    pseudo, created = PsfData.get_or_create(absname, use_first=True)
-    if created:
+    absname = op.realpath(op.join(op.dirname(__file__), "../fixtures/sample_psf", fname))
+    with io.open(absname, 'rb') as handle:
+        pseudo = PsfData.get_or_create(handle)
+    if not pseudo.is_stored:
         print("\nCreated the pseudo for {}".format(kinds))
     else:
         print("\nUsing the pseudo for {} from DB: {}".format(kinds, pseudo.pk))
     for j in kinds:
-        pseudos_dict[j] = pseudo
+        pseudos_dict[j]=pseudo
 
 # Options that are related to how the job is technically submitted and
 # run. Some of this options define flags for the job manager (e.g. SLURM)

@@ -2,15 +2,13 @@
 import sys
 
 from aiida.engine import submit
-from aiida.orm import load_code, SinglefileData
+from aiida.orm import load_code, SinglefileData, Group
 from aiida_siesta.calculations.siesta import SiestaCalculation
-from aiida_siesta.data.psf import get_pseudos_from_structure
 from aiida.plugins import DataFactory
 import os.path as op
 
 #  Siesta calculation on Water molecule -- to fail in geom relaxation
 
-PsfData = DataFactory('siesta.psf')
 Dict = DataFactory('dict')
 KpointsData = DataFactory('array.kpoints')
 StructureData = DataFactory('structure')
@@ -110,12 +108,12 @@ parameters = Dict(dict=params_dict)
 #
 # FIXME: The family name is hardwired
 #
-pseudos_dict = get_pseudos_from_structure(s, 'sample_psf_family')
+family = Group.get(label='psf_family')
+pseudos_dict = family.get_pseudos(structure=s)
 #-----------------------------------------------------------------------
 # Lua script for relaxation
 #
-absname = op.abspath(op.join(
-    op.dirname(__file__), "lua_scripts/relax_geometry_lbfgs.lua"))
+absname = op.abspath(op.join(op.dirname(__file__), "../../fixtures/lua_scripts/relax_geometry_lbfgs.lua"))
 lua_script = SinglefileData(absname)
 #
 #
